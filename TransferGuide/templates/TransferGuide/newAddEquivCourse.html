@@ -1,0 +1,307 @@
+{% load socialaccount %}
+{#Template from https://www.w3schools.com/w3css/w3css_templates.asp#}
+{#Searchbox from https://www.igniteui.com/combo/selection-and-checkboxes#}
+{% block content %}
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Add Course Equivalency</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
+.w3-sidebar {
+  z-index: 3;
+  width: 250px;
+  top: 43px;
+  bottom: 0;
+  height: inherit;
+}
+
+.parent {
+  width: 100%;
+  text-align: left;
+}
+
+.child {
+  display: inline-block;
+}
+</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non-blocking Alert</title>
+    <style>
+        .message-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            z-index: 9999;
+            font-size: 16px;
+            transform: translateX(-50%);
+        }
+
+        .message {
+            background-color: teal;
+            color: white;
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="w3-top">
+  <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
+    <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
+    <a href="{% url 'index' %}" class="w3-bar-item w3-button w3-theme-l1">Home</a>
+    {% if user.is_authenticated %}
+        {% if user.is_superuser %}
+            <a class="w3-bar-item w3-hide-small">Welcome {{ user.username }}! (Admin)</a>
+            <a href="{% url 'logout' %}" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Logout</a>
+        {%  else %}
+            <a class="w3-bar-item w3-hide-small">Welcome {{ user.username }}!</a>
+            <a href="{% url 'logout' %}" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Logout</a>
+        {% endif %}
+    {%  else %}
+            <a href="{% provider_login_url 'google'%}?next=/" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Login with Google</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Sidebar -->
+<nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-theme-l5 w3-animate-left" id="mySidebar">
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
+    <i class="fa fa-remove"></i>
+  </a>
+  <h4 class="w3-bar-item"><b>Menu</b></h4>
+  <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'allCourses' %}">All Courses</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'search_results' %}">Course Search</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'course_filter' %}">Filter</a>
+  {% if user.is_superuser %}
+      <h4 class="w3-bar-item"><b>Admin Menu</b></h4>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{%url 'addEquivCoursePage'%}">Add a Course Equivalency</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'mailBox' %}">Admin Mail</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{%url 'change_user_status'%}">Change User Status</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{%url 'pendingRequests'%}">Handle Requests</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'update' 0 1 0%}">Update SIS Database</a>
+  {% else %}
+      {% if user.is_authenticated %}
+          <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'sendEmail' %}">Email the Admins</a>
+          <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'student_request' %}">Equivalency Request Form</a>
+          <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'mailBox' %}">Mailbox</a>
+      {% endif %}
+  {% endif %}
+
+{#  <a class="w3-bar-item w3-button w3-hover-black" href="#">Link</a>#}
+</nav>
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
+<div class="w3-main" style="margin-left:260px">
+
+    <link href="http://cdn-na.infragistics.com/igniteui/2022.2/latest/css/themes/infragistics/infragistics.theme.css" rel="stylesheet" />
+    <link href="http://cdn-na.infragistics.com/igniteui/2022.2/latest/css/structure/infragistics.css" rel="stylesheet" />
+
+    <script src="http://ajax.aspnetcdn.com/ajax/modernizr/modernizr-2.8.3.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+
+    <!-- Ignite UI for jQuery Required Combined JavaScript Files -->
+    <script src="http://cdn-na.infragistics.com/igniteui/2022.2/latest/js/infragistics.core.js"></script>
+    <script src="http://cdn-na.infragistics.com/igniteui/2022.2/latest/js/infragistics.lob.js"></script>
+
+    <br>
+    <br>
+
+    <style>
+        .combo-label {margin-bottom:.5em;}
+    </style>
+    <br />
+    <div class=".ui-widget-overlay"></div>
+
+    <div class="message-container" id="messageContainer" style="justify-content: center"></div>
+    <script>
+        function showSuccessMessage(message, duration = 3000) {
+            const messageContainer = document.getElementById('messageContainer');
+
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.textContent = message;
+            messageContainer.appendChild(messageElement);
+
+            setTimeout(() => {
+                messageElement.remove();
+            }, duration);
+        }
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    showSuccessMessage("{{ message }}", 5000);
+                {% else %}
+                    showSuccessMessage("{{ message }}", 5000);
+                {% endif %}
+            {% endfor %}
+        });
+    </script>
+
+    <div>
+
+
+    <script>
+    var all_info = JSON.parse('{{ all_courses_list.all_together }}'.replace(/&quot;Bad&quot;/g, '\'Bad\'').replaceAll(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&#x27;/g, "'"));
+
+    jQuery(function () {
+        jQuery("#uvaSubject").igCombo({
+            width: 300,
+            dataSource: all_info,
+            textKey: "Name",
+            valueKey: "Name",
+            dropDownOrientation: "bottom",
+            placeHolder: "Select Subjects",
+            name: "uvaSubject"
+        });
+
+        let outsideUniversity = '';
+        let outsideAcronym = '';
+        let outsideSubject = '';
+        let outsideNumber = '';
+        let outsideName = '';
+
+        jQuery("#outsideUniversity").on("input", function() {
+            outsideUniversity = $(this).val();
+        });
+
+        jQuery("#outsideAcronym").on("input", function() {
+            outsideAcronym = $(this).val();
+        });
+
+        jQuery("#outsideSubject").on("input", function() {
+            outsideSubject = $(this).val();
+        });
+
+        jQuery("#outsideNumber").on("input", function() {
+            outsideNumber = $(this).val();
+        });
+
+        jQuery("#outsideName").on("input", function() {
+            outsideName = $(this).val();
+        });
+
+        jQuery("#courseForm").submit(function(event) {
+            document.getElementById('superuser-form').addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                const outsideUniversity = document.getElementById('outsideUniversity').value;
+                const outsideAcronym = document.getElementById('outsideAcronym').value;
+                const outsideSubject = document.getElementById('outsideSubject').value;
+                const outsideNumber = document.getElementById('outsideNumber').value;
+                const outsideName = document.getElementById('outsideName').value
+                const uvaSubject = $("#uvaSubject").igCombo("value");
+
+                fetch('/change_user_status/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: {
+                        'outside_university': outsideUniversity,
+                        'outside_acronym': outsideAcronym,
+                        'outside_subject': outsideSubject,
+                        'outside_number': outsideNumber,
+                        'outside_name': outsideName,
+                        'uva_subject': uvaSubject,
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Course Equivalency Added.');
+                    } else {
+                        alert('An error occurred while trying to add the equivalency, most likely the course already exists.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
+</div>
+</div>
+<div class="w3-main">
+    {% if user.is_superuser and user.is_authenticated %}
+<form id="courseForm" action="" method="POST">
+{% csrf_token %}
+<h2 style="margin-left: 260px">UVA Course Details</h2>
+    <div class="parent" style="width: 100%; margin-left:260px; display: inline-block">
+        <div class="child">
+            <a class="combo-label">Select UVA Course</a>
+            <br>
+            <label for="uvaSubject"></label><select name="uvaSubject" id="uvaSubject" style="width: 25%"></select>
+        </div>
+        <br>
+    </div>
+    <br>
+    <h2 style="margin-left: 260px">Outside Course Details</h2>
+    <div class="parent" style="width: 100%; margin-left:260px; display: inline-block">
+        <div class="child">
+            <a>Outside Institution</a><br>
+            <label for="outsideUniversity"></label>
+            <input name="outsideUniversity" type="text" id="outsideUniversity" placeholder="Enter Institution Name" style="width: 200px;" required>
+        </div>
+        <div class="child">
+            <a>Outside Institution Acronym</a><br>
+            <label for="outsideAcronym"></label>
+            <input name="outsideAcronym" type="text" id="outsideAcronym" placeholder="Enter Institution Acronym" style="width: 200px;" required>
+        </div>
+        <div class="child">
+            <a>Outside Course Subject</a><br>
+            <label for="outsideSubject"></label>
+            <input name="outsideSubject" type="text" id="outsideSubject" placeholder="Enter Subject" style="width: 200px;" required>
+        </div>
+        <div class="child">
+            <a>Outside Course Number</a><br>
+            <label>
+                <input type="number" name="outsideNumber" placeholder="Enter Course Number" min=0 oninput="validity.valid||(value='');" required style="width: 200px;">
+            </label>
+        </div>
+        <div class="child">
+            <a>Outside Course Name</a><br>
+            <label for="outsideName"></label>
+            <input name="outsideName" type="text" id="outsideName" placeholder="Enter Course Name" style="width: 200px;" required>
+        </div>
+        <br>
+        <br>
+        <button class="w3-button w3-theme" id="submitBtn" type="submit" value="Submit">Submit</button>
+    </div>
+</form>
+    {% else %}
+        <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.location.href = '/';
+            }, 1); // Redirects after 1 millisecond
+        };
+    </script>
+    {% endif %}
+</div>
+
+<div class="w3-main">
+</div>
+</body>
+</html>
+
+{% endblock content %}

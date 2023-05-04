@@ -1,0 +1,177 @@
+{% load socialaccount %}
+{#Template from https://www.w3schools.com/w3css/w3css_templates.asp#}
+{#Searchbox from https://www.igniteui.com/combo/selection-and-checkboxes#}
+{% block content %}
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Course Search</title>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
+.w3-sidebar {
+  z-index: 3;
+  width: 250px;
+  top: 43px;
+  bottom: 0;
+  height: inherit;
+}
+
+.parent {
+  width: 100%;
+  text-align: left;
+  margin-left:260px;
+
+}
+
+.child {
+  display: inline-block;
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="w3-top">
+  <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
+    <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
+    <a href="{% url 'index' %}" class="w3-bar-item w3-button w3-theme-l1">Home</a>
+    {% if user.is_authenticated %}
+        {% if user.is_superuser %}
+            <a class="w3-bar-item w3-hide-small">Welcome {{ user.username }}! (Admin)</a>
+            <a href="{% url 'logout' %}" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Logout</a>
+        {%  else %}
+            <a class="w3-bar-item w3-hide-small">Welcome {{ user.username }}!</a>
+            <a href="{% url 'logout' %}" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Logout</a>
+        {% endif %}
+    {%  else %}
+            <a href="{% provider_login_url 'google'%}?next=/" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Login with Google</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Sidebar -->
+<nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-theme-l5 w3-animate-left" id="mySidebar">
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
+    <i class="fa fa-remove"></i>
+  </a>
+  <h4 class="w3-bar-item"><b>Menu</b></h4>
+  <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'allCourses' %}">All Courses</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'search_results' %}">Course Search</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'course_filter' %}">Filter</a>
+  {% if user.is_superuser %}
+      <h4 class="w3-bar-item"><b>Admin Menu</b></h4>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{%url 'addEquivCoursePage'%}">Add a Course Equivalency</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'mailBox' %}">Admin Mail</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{%url 'change_user_status'%}">Change User Status</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{%url 'pendingRequests'%}">Handle Requests</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'update' 0 1 0%}">Update SIS Database</a>
+  {% else %}
+      {% if user.is_authenticated %}
+          <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'sendEmail' %}">Email the Admins</a>
+          <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'student_request' %}">Equivalency Request Form</a>
+          <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'mailBox' %}">Mailbox</a>
+      {% endif %}
+  {% endif %}
+
+{#  <a class="w3-bar-item w3-button w3-hover-black" href="#">Link</a>#}
+</nav>
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
+<div class="w3-main" style="margin-left:260px">
+
+    <link href="http://cdn-na.infragistics.com/igniteui/2022.2/latest/css/themes/infragistics/infragistics.theme.css" rel="stylesheet" />
+    <link href="http://cdn-na.infragistics.com/igniteui/2022.2/latest/css/structure/infragistics.css" rel="stylesheet" />
+
+    <script src="http://ajax.aspnetcdn.com/ajax/modernizr/modernizr-2.8.3.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+
+    <!-- Ignite UI for jQuery Required Combined JavaScript Files -->
+    <script src="http://cdn-na.infragistics.com/igniteui/2022.2/latest/js/infragistics.core.js"></script>
+    <script src="http://cdn-na.infragistics.com/igniteui/2022.2/latest/js/infragistics.lob.js"></script>
+
+    <br>
+    <br>
+
+    <style>
+        .combo-label {margin-bottom:.5em;}
+    </style>
+    <br />
+    <div class=".ui-widget-overlay"></div>
+
+</div>
+
+<SCRIPT TYPE="text/javascript">
+    function popup(mylink, windowname)
+    {
+        if (! window.focus)return true;
+        var href;
+        if (typeof(mylink) == 'string') href=mylink;
+        else href=mylink.href;
+        window.location.href = href;
+
+        return false;
+    }
+</SCRIPT>
+
+<div class="w3-main" style="margin-left:260px">
+
+    {% if user.is_superuser and user.is_authenticated %}
+<header>
+    <h1>Updating classes from SIS, this may take a while</h1>
+</header>
+<BODY onLoad="popup('/sisUpdate/{{param}}', 'notes')">
+    <label for="file">Updating Progress: {{percent}}%</label>
+    <progress id="file" value="{{percent}}" max="100"> {{percent}}% </progress>
+</BODY>
+{% else %}
+        <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.location.href = '/';
+            }, 1); // Redirects after 1 millisecond
+        };
+    </script>
+    {% endif %}
+
+</div>
+
+<script>
+// Get the Sidebar
+var mySidebar = document.getElementById("mySidebar");
+
+// Get the DIV with overlay effect
+var overlayBg = document.getElementById("myOverlay");
+
+// Toggle between showing and hiding the sidebar, and add overlay effect
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+    overlayBg.style.display = "none";
+  } else {
+    mySidebar.style.display = 'block';
+    overlayBg.style.display = "block";
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+  mySidebar.style.display = "none";
+  overlayBg.style.display = "none";
+}
+</script>
+
+</body>
+</html>
+
+{% endblock content %}

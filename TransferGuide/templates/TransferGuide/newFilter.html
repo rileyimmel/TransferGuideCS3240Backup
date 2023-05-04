@@ -1,0 +1,314 @@
+{% load socialaccount %}
+{#Template from https://www.w3schools.com/w3css/w3css_templates.asp#}
+{#Searchbox from https://www.igniteui.com/combo/selection-and-checkboxes#}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Course Filter</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
+.w3-sidebar {
+  z-index: 3;
+  width: 250px;
+  top: 43px;
+  bottom: 0;
+  height: inherit;
+}
+
+.parent {
+  width: 100%;
+  text-align: left;
+
+}
+
+.child {
+  display: inline-block;
+}
+.email-card {
+    width: 90%;
+    margin: 0 auto 1em;
+    display: block;
+    alignment: center;
+
+        }
+
+.email-title {
+            display: block;
+            width: 100%;
+        }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="w3-top">
+  <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
+    <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
+    <a href="{% url 'index' %}" class="w3-bar-item w3-button w3-theme-l1">Home</a>
+    {% if user.is_authenticated %}
+        {% if user.is_superuser %}
+            <a class="w3-bar-item w3-hide-small">Welcome {{ user.username }}! (Admin)</a>
+            <a href="{% url 'logout' %}" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Logout</a>
+        {%  else %}
+            <a class="w3-bar-item w3-hide-small">Welcome {{ user.username }}!</a>
+            <a href="{% url 'logout' %}" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Logout</a>
+        {% endif %}
+    {%  else %}
+            <a href="{% provider_login_url 'google'%}?next=/" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Login with Google</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Sidebar -->
+<nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-theme-l5 w3-animate-left" id="mySidebar">
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
+    <i class="fa fa-remove"></i>
+  </a>
+  <h4 class="w3-bar-item"><b>Menu</b></h4>
+  <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'allCourses' %}">All Courses</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'search_results' %}">Course Search</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'course_filter' %}">Filter</a>
+  {% if user.is_superuser %}
+      <h4 class="w3-bar-item"><b>Admin Menu</b></h4>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{%url 'addEquivCoursePage'%}">Add a Course Equivalency</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'mailBox' %}">Admin Mail</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{%url 'change_user_status'%}">Change User Status</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{%url 'pendingRequests'%}">Handle Requests</a>
+      <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'update' 0 1 0%}">Update SIS Database</a>
+  {% else %}
+      {% if user.is_authenticated %}
+          <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'sendEmail' %}">Email the Admins</a>
+          <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'student_request' %}">Equivalency Request Form</a>
+          <a class="w3-bar-item w3-button w3-hover-black" href="{% url 'mailBox' %}">Mailbox</a>
+      {% endif %}
+  {% endif %}
+
+{#  <a class="w3-bar-item w3-button w3-hover-black" href="#">Link</a>#}
+</nav>
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
+<div class="w3-main" style="margin-left:260px">
+
+    <link href="http://cdn-na.infragistics.com/igniteui/2022.2/latest/css/themes/infragistics/infragistics.theme.css" rel="stylesheet" />
+    <link href="http://cdn-na.infragistics.com/igniteui/2022.2/latest/css/structure/infragistics.css" rel="stylesheet" />
+
+    <script src="http://ajax.aspnetcdn.com/ajax/modernizr/modernizr-2.8.3.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+
+    <!-- Ignite UI for jQuery Required Combined JavaScript Files -->
+    <script src="http://cdn-na.infragistics.com/igniteui/2022.2/latest/js/infragistics.core.js"></script>
+    <script src="http://cdn-na.infragistics.com/igniteui/2022.2/latest/js/infragistics.lob.js"></script>
+
+    <br>
+    <br>
+
+    <style>
+        .combo-label {margin-bottom:.5em;}
+    </style>
+    <br />
+    <div class=".ui-widget-overlay"></div>
+
+
+
+    <script>
+    var subjects = JSON.parse('{{ filtered_courses.json }}'.replace(/&quot;/g,'"'));
+    var universities = JSON.parse('{{ filtered_courses.universitiesJSON }}'.replace(/&quot;/g,'"'));
+    var course_numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+    $(function () {
+        // Set up the combo box for selecting subjects
+        $("#checkboxSelectCombo").igCombo({
+            width: 300,
+            dataSource: subjects,
+            textKey: "Name",
+            valueKey: "Name",
+            multiSelection: {
+                enabled: true,
+                showCheckboxes: true
+            },
+            dropDownOrientation: "bottom",
+            placeHolder: "Select Subjects"
+        });
+
+        $("#checkboxUniversitiesSelectCombo").igCombo({
+            width: 300,
+            dataSource: universities,
+            textKey: "Name",
+            valueKey: "Name",
+            multiSelection: {
+                enabled: true,
+                showCheckboxes: true
+            },
+            dropDownOrientation: "bottom",
+            placeHolder: "Select Subjects"
+        });
+
+        // Set up the slider for choosing a number
+        $("#checkboxNumberSelectCombo").igCombo({
+            width: 300,
+            dataSource: course_numbers,
+            textKey: "Name",
+            valueKey: "Name",
+            multiSelection: {
+                enabled: true,
+                showCheckboxes: true
+            },
+            dropDownOrientation: "bottom",
+            placeHolder: "Select Subjects",
+            autoSelectFirstMatch: true
+        });
+
+        // Handle the submit button click event
+        $("#submitBtn").click(function() {
+            var selectedValues = $("#checkboxSelectCombo").igCombo("value");
+            var selectedUniversities = $("#checkboxUniversitiesSelectCombo").igCombo("value");
+            var numberValue = $("#checkboxNumberSelectCombo").igCombo("value");
+            var cur_url = window.location.href;
+            var index = cur_url.indexOf('?');
+            if (index > -1){
+                cur_url = cur_url.substring(0,index);
+            }
+            window.location.href = cur_url + "?subject=" + selectedValues + "&number=" + numberValue + "&universities=" +selectedUniversities;
+        });
+    });
+</script>
+
+    <div class="parent" >
+        <h2>Filter Courses</h2>
+        <h6>Filling in multiple criteria will work as an AND</h6>
+        <div class="child">
+            <a class="combo-label">Select Universities</a>
+            <br>
+            <div id="checkboxUniversitiesSelectCombo"></div>
+        </div>
+        <div class="child">
+            <a class="combo-label">Select Subject(s)</a>
+            <br>
+            <div id="checkboxSelectCombo"></div>
+        </div>
+        <div class="child">
+            <a class="combo-label">Course Level</a>
+            <br>
+            <div id="checkboxNumberSelectCombo"></div>
+        </div>
+        <br>
+        <button class="w3-button w3-theme" id="submitBtn" type="submit" value="Submit">Submit</button>
+        <button class="w3-button w3-theme"><a href="{% url 'course_filter' %}" style="text-decoration: none;">Clear Filters</a></button>
+    </div>
+</div>
+
+
+<div class="parent" style="width: 85%; margin-left:260px; display: inline-block">
+    {% if filtered_courses.courses%}
+        <h2>Search Results</h2>
+        <div class="w3-row-padding">
+            {% for subject in filtered_courses.filteredSubjects %}
+                <div class="w3-col m2">
+                    <div class="w3-card w3-container w3-margin w3-padding email-card email-card-container">
+                        <h5 class="w3-bar-item w3-button w3-medium email-title" onclick="openModal('subject-{{ forloop.counter }}')">{{ subject.courseSubject }}</h5>
+                        <div id="subject-{{ forloop.counter }}" class="w3-modal course-modal">
+                            <div class="w3-modal-content w3-animate-top w3-auto">
+                                <header class="w3-container w3-theme">
+                                    <span onclick="document.getElementById('subject-{{ forloop.counter }}').style.display='none'"
+                                        class="w3-button w3-display-topright">&times;</span>
+                                    <h5>{{ subject.courseSubject }}</h5>
+                                </header>
+                                <div class="w3-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Subject</th>
+                                                <th>Number</th>
+                                                <th>Name</th>
+                                                <th>University</th>
+                                                <th>Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for course in filtered_courses.courses %}
+                                                {% if course.courseSubject == subject.courseSubject %}
+                                                    <tr>
+                                                        <td>{{ course.courseSubject }}</td>
+                                                        <td>{{ course.courseNumber }}</td>
+                                                        <td style="text-align: left">{{ course.courseName }}</td>
+                                                        <td>{{ course.universityLong }}</td>
+                                                        <td style="text-align: center"><a href={% url 'course_info' %}?subject={{ course.courseSubject }}&number={{ course.courseNumber }}&name={{ course.courseName | slugify }}&university={{ course.universityShort }}>Info</a></td>
+                                                    </tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="w3-padding-16"></div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h2>No courses found.</h2>
+    {% endif %}
+</div>
+
+
+
+
+
+<script>
+  function openModal(modalId) {
+    document.getElementById(modalId).style.display = "block";
+  }
+
+  var modals = document.getElementsByClassName("course-modal");
+
+  for (var i = 0; i < modals.length; i++) {
+    modals[i].addEventListener("click", function(event) {
+      if (event.target.classList.contains("w3-modal")) {
+        event.target.style.display = "none";
+      }
+    });
+  }
+</script>
+
+<script>
+// Get the Sidebar
+var mySidebar = document.getElementById("mySidebar");
+
+// Get the DIV with overlay effect
+var overlayBg = document.getElementById("myOverlay");
+
+// Toggle between showing and hiding the sidebar, and add overlay effect
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+    overlayBg.style.display = "none";
+  } else {
+    mySidebar.style.display = 'block';
+    overlayBg.style.display = "block";
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+  mySidebar.style.display = "none";
+  overlayBg.style.display = "none";
+}
+</script>
+
+</body>
+</html>
+
+{% endblock content %}
