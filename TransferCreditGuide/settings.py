@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '3ii($$jt40kr@moqz(*5o7ec+q*fq3l3juzg$dxk-alm+34s&='
+SECRET_KEY = #removed#
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -119,13 +119,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TransferCreditGuide.wsgi.application'
 
-# DEFAULT_FROM_EMAIL = 'transferguideb24@gmail.com'
+# DEFAULT_FROM_EMAIL = #removed#
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'transferguideb24@gmail.com'
-# EMAIL_HOST_PASSWORD = 'zpepkepvoppgidrf'
+# EMAIL_HOST_USER = #removed#
+# EMAIL_HOST_PASSWORD = #removed#
 
 
 # Database
